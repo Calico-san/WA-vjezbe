@@ -8,6 +8,12 @@ let dozvoljeni_kljucevi = ["ime", "prezime", "godine_staža", "pozicija"];
 
 
 router.get('/', async (req, res) => {
+    let sortiraj_query = req.query.sortiraj_po_godinama;
+    let pozicija_query = req.query.pozicija;
+    let min_godine_query = req.query.godine_staža_min;
+    let max_godine_query = req.query.godine_staža_max;
+
+
     try {
         const zaposlenici = await fs.readJson('data/zaposlenici.json');
 
@@ -15,12 +21,41 @@ router.get('/', async (req, res) => {
                 return res.status(500).json({greska: "Podacima se ne može pristupiti."})
         }
 
-        return res.status(200).send(zaposlenici);
+        if (sortiraj_query) {
+            if (sortiraj_query === 'uzlazno') {
+                zaposlenici.sort((a, b) => a.godine_staža - b.godine_staža);
+            } else if (sortiraj_query === 'silazno') {
+                zaposlenici.sort((a, b) => b.godine_staža - a.godine_staža);
+            }
+        }
+
+        if (!pozicija_query && !min_godine_query && !max_godine_query) {
+            return res.status(200).send(zaposlenici);
+        }
+
+        // nisam htjela pisati filtriranje za svaku kombinaciju query parametara zasebno 
+        // mislila sam si "ovo se sigurno da nekako elegantnije napisati"
+        // pa sam umjesto toga SATIMA LUPALA GLAVOM U ZID dok nisam ovo smislila
+        // cisto da napomenem :)))
+
+        const filtrirani_zaposlenici = zaposlenici.filter(z => {
+            if (pozicija_query && z.pozicija !== pozicija_query) return false;
+            if (min_godine_query && z.godine_staža < min_godine_query) return false;
+            if (max_godine_query && z.godine_staža > max_godine_query) return false;
+            return true;
+        })
+        
+        if (filtrirani_zaposlenici.length === 0) {
+            return res.status(200).json({poruka: "Nema odgovarajućih zaposlenika!"})
+        }
+        return res.status(200).send(filtrirani_zaposlenici);
+
     } catch (error) {
         console.error('Greška prilikom čitanja datoteke:', error);
         res.status(500).send('Greška prilikom čitanja datoteke.');
     }
 });
+
 
 
 router.get('/:id', async (req, res) => {
@@ -49,8 +84,6 @@ router.get('/:id', async (req, res) => {
         return res.status(500).send('Greška prilikom čitanja datoteke.');
     }
 });
-
-
 
 
 
