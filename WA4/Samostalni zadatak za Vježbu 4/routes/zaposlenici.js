@@ -1,6 +1,6 @@
 import express from "express";
 import fs from 'fs-extra';
-import { checkArray, sameArrays } from "../utils/index.js";
+import { checkArray, checkValue, sameArrays } from "../utils/index.js";
 
 const router = express.Router();
 
@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
         console.error('Greška prilikom čitanja datoteke:', error);
         return res.status(500).send('Greška prilikom čitanja datoteke.');
     }
-    });
+});
 
 
 
@@ -67,6 +67,19 @@ router.post('/', async (req, res) => {
         return res.status(400).json({greska: "Ključevi se ne podudaraju."});
     }
 
+    // sto se validacija tice, nisam bila sigurna sto sve treba pa sam dodala ovo ispod + helper funkciju da malo zakompliciram
+    if (!checkValue(zaposlenik, kljucevi_zaposlenik)) {
+        return res.status(400).json({greska: "Svi podaci o zaposleniku moraju biti upisani!"});
+    }
+
+    if (isNaN(zaposlenik.godine_staža)) {
+        return res.status(400).json({greska: "Godine staža moraju biti broj!"});
+    }
+
+    if (typeof zaposlenik.ime !== "string" || typeof zaposlenik.prezime !== "string") {
+        return res.status(400).json({greska: "Ime i prezime moraju biti string!"});
+    }
+
     try {
         const zaposlenici = await fs.readJson('data/zaposlenici.json');
         const novi_id = zaposlenici.at(-1)['id'] + 1;
@@ -74,7 +87,7 @@ router.post('/', async (req, res) => {
         await fs.writeJson('data/zaposlenici.json', zaposlenici); 
 
         console.log('Podaci uspješno zapisani u datoteku.');
-        res.status(200).send('Podaci uspješno zapisani u datoteku.');
+        res.status(201).send('Podaci uspješno zapisani u datoteku.');
     } catch (error) {
         console.error('Greška prilikom pohrane u datoteku:', error);
         res.status(500).send('Greška prilikom pohrane u datoteku.');

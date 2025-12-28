@@ -14,4 +14,16 @@ export function sameArrays(array_1, array_2) {
     return array_1.every(element => array_2.includes(element));   
 }
 
+export function checkValue(body, kljucevi) {
+    for (const kljuc of kljucevi) {
+        if (body[kljuc] === null || body[kljuc] === undefined) {
+            return false;
+        }
 
+        if (typeof body[kljuc] === "string" && body[kljuc].trim() === "") {
+            return false;
+        }
+    }
+
+    return true;
+}
