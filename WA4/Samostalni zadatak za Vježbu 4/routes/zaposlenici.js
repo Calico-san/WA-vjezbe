@@ -40,8 +40,8 @@ router.get('/', async (req, res) => {
 
         const filtrirani_zaposlenici = zaposlenici.filter(z => {
             if (pozicija_query && z.pozicija !== pozicija_query) return false;
-            if (min_godine_query && z.godine_staža < min_godine_query) return false;
-            if (max_godine_query && z.godine_staža > max_godine_query) return false;
+            if (min_godine_query && z.godine_staža < parseInt(min_godine_query)) return false;
+            if (max_godine_query && z.godine_staža > parseInt(max_godine_query)) return false;
             return true;
         })
         
@@ -120,7 +120,7 @@ router.post('/', async (req, res) => {
         await fs.writeJson('data/zaposlenici.json', zaposlenici); 
 
         console.log('Podaci uspješno zapisani u datoteku.');
-        res.status(201).send('Podaci uspješno zapisani u datoteku.');
+        res.status(201).json({poruka: "Dodavanje zaposlenika uspješno!"});
     } catch (error) {
         console.error('Greška prilikom pohrane u datoteku:', error);
         res.status(500).send('Greška prilikom pohrane u datoteku.');
