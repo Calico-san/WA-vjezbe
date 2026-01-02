@@ -15,7 +15,8 @@ export const narudzbe = [
         narucene_pizze: [
         // svaka narudžba sastoji se od jedne ili više naručenih pizza
             {
-                // za svaku naručenu pizzu bilježimo naziv, naručenu veličinu i količinu naziv: 'Margherita',
+                // za svaku naručenu pizzu bilježimo naziv, naručenu veličinu i količinu 
+                naziv: 'Margherita',
                 velicina: 'srednja', 
                 kolicina: 2
             },
